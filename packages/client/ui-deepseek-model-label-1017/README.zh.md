@@ -1,5 +1,5 @@
 ---
-description: "在输入框的模型选择器中为 DeepSeek Flash 显示临时的 1017 角标。"
+description: "在输入框的模型选择器中，为每个提供 DeepSeek 1017 Flash 批次的通道显示临时的 1017 角标。"
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-本包在输入框模型选择器的 `DeepSeek-V4.1-Flash` 旁显示 `1017`。它覆盖官方 API Key 和账号通道，保留目录名称和请求 ID。停用后恢复纯模型名称。
+本包在输入框模型选择器的 `DeepSeek-V4.1-Flash` 旁显示 `1017`。它覆盖所有提供该批次的通道——官方 API Key 与账号通道，以及 Ollama Cloud 的固定 tag——并保留各自的目录名称和请求 ID。停用后恢复纯模型名称。
 
 ## 目录
 
@@ -27,7 +27,7 @@ kind: "package-reference"
 
 Web bundle 包含本插件，桌面端使用该 bundle 时也会加载。本包没有配置字段。
 
-只有提供方为 `deepseek-official` 或 `deepseek-account`、模型 ID 为 `deepseek-flash`，且目录名称恰好为 `DeepSeek-V4.1-Flash` 时才显示角标。其他名称和提供方保留目录文字。输入框按钮、当前模型菜单行和模型选项共用这个角标。
+只有目录名称恰好为 `DeepSeek-V4.1-Flash`，且模型 ID 是该批次在该通道上使用的那个时才显示角标：`deepseek-official` 与 `deepseek-account` 上是 `deepseek-flash`，`ollama-cloud` 上是 `deepseek-v4.1-flash:1017`。其他名称、ID 和提供方保留目录文字。输入框按钮、当前模型菜单行和模型选项共用这个角标。
 
 通过 profile patch 停用以下条目即可恢复目录名称：
 
@@ -58,6 +58,7 @@ Web bundle 包含本插件，桌面端使用该 bundle 时也会加载。本包�
 - [模型选择](../ui-model-selection/README.zh.md) — 名称显示位置与选择行为。
 - [DeepSeek 传输](../../llm/llm-deepseek/README.zh.md) — 内置模型目录。
 - [DeepSeek 账号](../../llm/llm-deepseek-account/README.zh.md) — 账号提供的模型目录。
+- [pi-ai](../../llm/llm-pi-ai/README.zh.md) — 随附的 Ollama Cloud 通道及其固定的 Flash tag。
 
 -----
 

@@ -23,6 +23,7 @@ import type { ModelsOperations } from './operations.ts'
 import type { DeepSeekModelDraft } from './DeepSeekModelsEditor.tsx'
 import type { en } from './locales.ts'
 import { ModelRow } from './ModelRow.tsx'
+import type { RoutingDraft, RoutingProviderOption } from './ModelRow.tsx'
 import styles from './ModelsSection.module.css'
 
 /**
@@ -90,6 +91,12 @@ export interface ModelListEditorProps {
    * told what the field already says.
    */
   probeBlocked?: keyof typeof en | undefined
+  /**
+   * Destination providers offered for peak routing; absent hides the control.
+   * Each entry names the model ids it serves, and a row offers only the
+   * providers serving the model it edits.
+   */
+  routingProviders?: readonly RoutingProviderOption[] | undefined
   /** The Host operations whose interrogation answers the fetch action. */
   operations: ModelsOperations
   /** Section copy. */
@@ -105,19 +112,31 @@ export interface ModelListEditorProps {
   onBusyChange: (busy: boolean) => void
 }
 
+/**
+ * Peak routing belongs to Ollama Cloud's DeepSeek entries: that is the route
+ * whose weekday peak this fork schedules around, so only those rows carry the
+ * control. Every other model stays free of a choice this fork does not use.
+ */
+const PEAK_ROUTING_PROVIDER = 'ollama-cloud'
+
+/** Model-id prefix naming the DeepSeek family on {@link PEAK_ROUTING_PROVIDER}. */
+const PEAK_ROUTING_MODEL_PREFIX = 'deepseek'
+
 /** The two token counts edited as K/M-suffixed text behind a row's disclosure. */
 type CapacityField = 'contextWindow' | 'maxTokens'
 
 /**
- * What an empty capacity field is worth, shown as its placeholder so a row left
- * blank does not read as a model with no capacity at all.
+ * What an empty capacity field is worth when neither the model's own entry nor
+ * the route's catalog sizes it, shown as its placeholder so a row left blank
+ * does not read as a model with no capacity at all.
  *
- * The magnitudes are the adapter's own route-level fallbacks (`llm-pi-ai`'s
+ * These magnitudes are the adapter's own route-level fallbacks (`llm-pi-ai`'s
  * `defaultContextWindow` and `defaultMaxTokens`), spelled the way a person
  * would say them. They are a hint, not a mirror: this page counts `K` as 1000,
  * so typing `256K` stores 256000 while leaving the field blank keeps the
- * adapter's 262144. A deployment that overrides those defaults is not
- * reflected here — nothing on this page can read them.
+ * adapter's 262144. A model the route's catalog describes shows that entry's
+ * own count instead, which is the capacity a blank field actually leaves in
+ * force.
  */
 const CAPACITY_HINT: Readonly<Record<CapacityField, string>> = {
   contextWindow: '256K',
@@ -133,6 +152,27 @@ const CAPACITY_HINT: Readonly<Record<CapacityField, string>> = {
  */
 function capacitySpelling(value: number | undefined): string {
   return value === undefined ? '' : formatCapacity(value)
+}
+
+/**
+ * Destinations a row may route to, or `undefined` to hide the control.
+ * @param options - every configured provider, with the models each serves.
+ * @param provider - route that owns the row being edited.
+ * @param modelId - the row's model id.
+ * @returns the destination list for an Ollama Cloud DeepSeek row, excluding the
+ *   route itself, which cannot be its own destination; otherwise `undefined`.
+ */
+function peakRoutingOptions(
+  options: readonly RoutingProviderOption[] | undefined,
+  provider: string | undefined,
+  modelId: string,
+): readonly RoutingProviderOption[] | undefined {
+  if (options === undefined) return undefined
+  if (provider !== PEAK_ROUTING_PROVIDER || !modelId.startsWith(PEAK_ROUTING_MODEL_PREFIX)) return undefined
+  // A window moves the request elsewhere; naming the route it already serves
+  // would ask the endpoint to serve itself, which the adapter refuses as a
+  // destination that is not an installed catalog provider.
+  return options.filter(option => option.id !== PEAK_ROUTING_PROVIDER)
 }
 
 /** Adopt a candidate, preserving disclosed capacities and input types. */
@@ -172,7 +212,17 @@ export function ModelListEditor(props: ModelListEditorProps): ReactNode {
     return () => { current = false }
   }, [catalogProvider, operations, probe.settingsNs])
   const catalog = inheritedCatalog?.provider === catalogProvider ? inheritedCatalog?.models : undefined
-  const inputDefaults = useMemo(() => new Map(catalog?.map(model => [model.id, model.inputModalities])), [catalog])
+  const catalogById = useMemo(() => new Map(catalog?.map(model => [model.id, model])), [catalog])
+  /**
+   * The count an empty capacity field leaves in force, spelled for the field.
+   * A model the route's catalog describes inherits that entry's own count, so
+   * the placeholder states it; a model nothing describes inherits the
+   * adapter's route fallback, whose magnitude is the static hint.
+   */
+  const capacityPlaceholder = (id: string, field: CapacityField): string => {
+    const described = id.length === 0 ? undefined : catalogById.get(id)?.[field]
+    return described === undefined ? CAPACITY_HINT[field] : formatCapacity(described)
+  }
   const [candidates, setCandidates] = useState<readonly LlmDiscoveredModel[] | undefined>(undefined)
   const [picked, setPicked] = useState<ReadonlySet<string>>(new Set())
   const [candidateQuery, setCandidateQuery] = useState('')
@@ -218,6 +268,35 @@ export function ModelListEditor(props: ModelListEditorProps): ReactNode {
       if (!next.delete(index)) next.add(index)
       return next
     })
+  }
+
+  /**
+   * Replace one row's peak route. Clearing removes the field entirely so
+   * the profile stops naming a destination the user no longer wants. The
+   * destination's credential reference is written back as the draft carried
+   * it, so editing the window does not silently drop one this control does not
+   * edit.
+   * @param index - row being edited.
+   * @param next - the edited route, or `undefined` to clear it.
+   */
+  const setRouting = (index: number, next: RoutingDraft | undefined): void => {
+    onChange(models.map((model, at) => {
+      if (at !== index) return model
+      if (next === undefined) {
+        const { peak: _peak, ...rest } = model
+        return rest
+      }
+      return {
+        ...model,
+        // The period is the model's published price policy and lives with the
+        // catalog data, so this page stores the destination alone.
+        peak: [{
+          provider: next.provider,
+          ...next.model === '' ? {} : { model: next.model },
+          ...next.apiKeyEnv === undefined ? {} : { apiKeyEnv: next.apiKeyEnv },
+        }],
+      }
+    }))
   }
 
   const patch = (index: number, next: Record<string, string | number | undefined>): void => {
@@ -366,7 +445,7 @@ export function ModelListEditor(props: ModelListEditorProps): ReactNode {
             model={model}
             position={index + 1}
             inputField="input"
-            inputFallback={inputDefaults.get(textOf(model, 'id')) ?? props.defaultInput}
+            inputFallback={catalogById.get(textOf(model, 'id'))?.inputModalities ?? props.defaultInput}
             inputLoading={catalogProvider !== undefined && catalog === undefined}
             reasoningLevels={props.reasoningLevels}
             expanded={expanded.has(index)}
@@ -374,15 +453,17 @@ export function ModelListEditor(props: ModelListEditorProps): ReactNode {
             t={t}
             contextWindow={{
               value: capacityText(model, index, 'contextWindow'),
-              placeholder: CAPACITY_HINT.contextWindow,
+              placeholder: capacityPlaceholder(textOf(model, 'id'), 'contextWindow'),
               onChange: (text) => { editCapacity(index, 'contextWindow', text) },
             }}
             maxTokens={{
               value: capacityText(model, index, 'maxTokens'),
-              placeholder: CAPACITY_HINT.maxTokens,
+              placeholder: capacityPlaceholder(textOf(model, 'id'), 'maxTokens'),
               onChange: (text) => { editCapacity(index, 'maxTokens', text) },
             }}
             onFieldChange={(field, value) => { patch(index, { [field]: value }) }}
+            routingProviders={peakRoutingOptions(props.routingProviders, probe.provider, textOf(model, 'id'))}
+            onRoutingChange={(next) => { setRouting(index, next) }}
             onChange={(next) => { onChange(models.map((row, at) => at === index ? next : row)) }}
             onToggle={() => { toggleExpanded(index) }}
             onRemove={() => {

@@ -27,16 +27,20 @@ async function runtime() {
 }
 
 const placements = ['trigger', 'menu', 'option'] as const
-const targets = ['deepseek-official', 'deepseek-account'].flatMap(provider => placements.map(placement => ({ provider, placement })))
-it.each(targets)('shows the badge for $provider at $placement without rewriting its catalog entry', async ({ provider, placement }) => {
+const targets = [
+  ['deepseek-official', 'deepseek-flash'],
+  ['deepseek-account', 'deepseek-flash'],
+  ['ollama-cloud', 'deepseek-v4.1-flash:1017'],
+].flatMap(([provider, id]) => placements.map(placement => ({ provider: provider!, id: id!, placement })))
+it.each(targets)('shows the badge for $provider/$id at $placement without rewriting its catalog entry', async ({ provider, id, placement }) => {
   const { host, session } = await runtime()
   await host.declare({ [SLOT]: { kind: 'single', scope: 'session', inline: true } })
   await host.mount(LabelPlugin)
-  const input = owner(provider, NAME, 'deepseek-flash', placement)
+  const input = owner(provider, NAME, id, placement)
   const view = host.renderSlot(SLOT, input, { session, fallback: input.model.name })
   expect(view.container.textContent).toBe(`${NAME} 1017`)
   expect(view.view.getByText('1017').tagName).toBe('SPAN')
-  expect(input.model).toEqual({ id: 'deepseek-flash', name: NAME })
+  expect(input.model).toEqual({ id, name: NAME })
 })
 
 it.each([
@@ -45,6 +49,9 @@ it.each([
   { label: 'a custom name', value: owner('deepseek-account', 'My Flash') },
   { label: 'a dated name', value: owner('deepseek-account', `${NAME}-1017`) },
   { label: 'a later release name', value: owner('deepseek-official', `${NAME}-1024`) },
+  // Ollama Cloud's other DeepSeek entries are not this batch.
+  { label: 'the untagged Ollama Flash name', value: owner('ollama-cloud', 'DeepSeek V4.1 Flash', 'deepseek-v4.1-flash') },
+  { label: 'the Ollama Pro entry', value: owner('ollama-cloud', 'DeepSeek-V4.1-Flash', 'deepseek-v4-pro:0813') },
 ])('preserves $label', async ({ value }) => {
   const { host, session } = await runtime()
   await host.declare({ [SLOT]: { kind: 'single', scope: 'session', inline: true } })
