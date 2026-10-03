@@ -3,26 +3,26 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-deepseek-model-label-1017/README.md
 /:
-  en: 21f43d0c704c3668
-  zh: 0497e58bb871e2c4
+  en: d39d6614903dccc4
+  zh: 1e254f914efd8c25
 /deepseek-ai-dsh-client-ui-deepseek-model-label-1017:
   en: aa0cd60e16297d9f
   zh: 882cee782592c56b
 /deepseek-ai-dsh-client-ui-deepseek-model-label-1017/summary:
-  en: 708be526d5758c04
-  zh: 136b968ae71c9657
+  en: 488113ea2c1aa087
+  zh: aa05abb35977f5af
 /deepseek-ai-dsh-client-ui-deepseek-model-label-1017/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
 /deepseek-ai-dsh-client-ui-deepseek-model-label-1017/use-this-package:
-  en: a6d5fcecfa93935b
-  zh: 8ae2809a06910c52
+  en: 1545af5cf2281437
+  zh: 8b66b5e426954916
 /deepseek-ai-dsh-client-ui-deepseek-model-label-1017/understand-the-implementation:
   en: ca1d0c5db1b819a0
   zh: 960e8db56fa5987e
 /deepseek-ai-dsh-client-ui-deepseek-model-label-1017/further-exploration:
-  en: 2885099078047d38
-  zh: d7de1db3f1ba0a50
+  en: f084953cd2450e4d
+  zh: 2f58f624a2c4916d
 /deepseek-ai-dsh-client-ui-deepseek-model-label-1017/model-experience:
   en: 16ab1406c87419d7
   zh: 01bce720d29ab2e8

@@ -1,5 +1,5 @@
 ---
-description: "Show a temporary 1017 badge beside DeepSeek Flash in the composer model selector."
+description: "Show a temporary 1017 badge beside every route serving the DeepSeek 1017 Flash build in the composer model selector."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-This package shows `1017` beside `DeepSeek-V4.1-Flash` in the composer model selector. It covers the official API-key and account routes while preserving their catalog names and request IDs. Disable it to restore plain model names.
+This package shows `1017` beside `DeepSeek-V4.1-Flash` in the composer model selector. It covers every route that serves that build — the official API-key and account routes, and Ollama Cloud's pinned tag — while preserving their catalog names and request IDs. Disable it to restore plain model names.
 
 ## Table of Contents
 
@@ -27,7 +27,7 @@ This package shows `1017` beside `DeepSeek-V4.1-Flash` in the composer model sel
 
 The Web bundle includes this plugin, including when Desktop uses that bundle. It has no configuration fields.
 
-The badge appears only when the provider is `deepseek-official` or `deepseek-account`, the model ID is `deepseek-flash`, and the catalog name is exactly `DeepSeek-V4.1-Flash`. Other names and providers keep their catalog text. The input button, current-model menu row, and model options share the badge.
+The badge appears only when the catalog name is exactly `DeepSeek-V4.1-Flash` and the model ID is the one that build carries on its route: `deepseek-flash` on `deepseek-official` and `deepseek-account`, and `deepseek-v4.1-flash:1017` on `ollama-cloud`. Other names, ids, and providers keep their catalog text. The input button, current-model menu row, and model options share the badge.
 
 Disable the following row through a profile patch to restore the catalog name:
 
@@ -58,6 +58,7 @@ These packages own the selector and its two directory sources.
 - [Model selection](../ui-model-selection/README.md) — label placement and selection behavior.
 - [DeepSeek transport](../../llm/llm-deepseek/README.md) — built-in model catalog.
 - [DeepSeek account](../../llm/llm-deepseek-account/README.md) — account-provided model directory.
+- [pi-ai](../../llm/llm-pi-ai/README.md) — the bundled Ollama Cloud route and its pinned Flash tag.
 
 -----
 
