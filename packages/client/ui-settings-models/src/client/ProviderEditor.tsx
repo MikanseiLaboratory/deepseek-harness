@@ -32,6 +32,7 @@ import {
 import { apiKeyFailure } from './apiKey.ts'
 import { EditorFooter } from './EditorFooter.tsx'
 import { ModelListEditor } from './ModelListEditor.tsx'
+import type { RoutingProviderOption } from './ModelRow.tsx'
 import { deriveKeyRef, protocolChoices } from './store.ts'
 import { protocolLabel } from './protocol-label.ts'
 import type { ModelsOperations } from './operations.ts'
@@ -67,6 +68,8 @@ export interface ProviderEditorProps {
   schema: SettingsSchemaOperations
   /** Path from the section root to this provider's profile. */
   settingsPath: readonly string[]
+  /** Destination providers offered for peak routing on each model row. */
+  routingProviders?: readonly RoutingProviderOption[] | undefined
   /** The Host operations this card writes and interrogates through. */
   operations: ModelsOperations
   /** Endpoint the route uses when its profile sets no `baseURL`; absent when the adapter reports none. */
@@ -514,6 +517,7 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
               : (
                 <ModelListEditor
                   {...catalogProps}
+                  {...props.routingProviders === undefined ? {} : { routingProviders: props.routingProviders }}
                   catalogProvider={props.declared === true ? undefined : props.provider}
                   defaultInput={Array.isArray(defaultInput) ? defaultInput : undefined}
                   probe={probe}
