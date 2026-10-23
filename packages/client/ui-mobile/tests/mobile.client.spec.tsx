@@ -380,6 +380,47 @@ describe('presenter', () => {
     expect(root.dataset.dshMobileHideDesktop).toBeUndefined()
     expect(root.dataset.dshComposerEnter).toBeUndefined()
   })
+
+  it('opens the drawer from a rightward touch that starts at the left edge', () => {
+    const storage = new MemoryStorage()
+    storage.value = JSON.stringify({ layout: 'smartphone', hideDesktopActions: true, enterMode: 'send' })
+    const { instance } = mount(storage)
+    const pointer = (type: string, x: number, y: number, pointerType = 'touch', pointerId = 1): void => {
+      document.dispatchEvent(new PointerEvent(type, {
+        bubbles: true, cancelable: true, clientX: x, clientY: y, pointerId, pointerType, isPrimary: true,
+      }))
+    }
+    pointer('pointerdown', 200, 40)
+    pointer('pointerup', 280, 40)
+    expect(instance.getSnapshot().drawerOpen).toBe(false)
+    pointer('pointerdown', 8, 40, 'mouse')
+    pointer('pointerup', 90, 40, 'mouse')
+    expect(instance.getSnapshot().drawerOpen).toBe(false)
+    pointer('pointerdown', 8, 40)
+    pointer('pointermove', 20, 80)
+    pointer('pointerup', 90, 120)
+    expect(instance.getSnapshot().drawerOpen).toBe(false)
+    pointer('pointerdown', 8, 40)
+    pointer('pointerup', 30, 42)
+    expect(instance.getSnapshot().drawerOpen).toBe(false)
+    pointer('pointerdown', 8, 40)
+    pointer('pointermove', 40, 44)
+    pointer('pointercancel', 40, 44)
+    pointer('pointerup', 100, 44)
+    expect(instance.getSnapshot().drawerOpen).toBe(false)
+    pointer('pointerdown', 8, 40)
+    pointer('pointerup', 90, 48)
+    expect(instance.getSnapshot().drawerOpen).toBe(true)
+    expect(document.documentElement.dataset.dshMobileDrawer).toBe('open')
+    pointer('pointerdown', 8, 40)
+    pointer('pointerup', 120, 40)
+    expect(instance.getSnapshot().drawerOpen).toBe(true)
+    instance.actions.setLayout('desktop')
+    instance.actions.setDrawerOpen(false)
+    pointer('pointerdown', 8, 40)
+    pointer('pointerup', 120, 40)
+    expect(instance.getSnapshot().drawerOpen).toBe(false)
+  })
 })
 
 describe('components', () => {

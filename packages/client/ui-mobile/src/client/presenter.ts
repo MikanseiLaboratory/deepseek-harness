@@ -40,6 +40,12 @@ export interface PreferenceStorage {
 /** Difference that reads as the on-screen keyboard rather than browser chrome. */
 const KEYBOARD_THRESHOLD = 150
 
+/** A touch that starts in this strip can drag the left drawer open. */
+const DRAWER_EDGE_PX = 32
+
+/** Rightward travel that opens the drawer. Shorter drags stay a scroll. */
+const DRAWER_OPEN_DX = 56
+
 /**
  * Read a CSS pixel length. Non-lengths (including an empty computed value) are 0.
  * @param value - a computed padding string.
@@ -68,6 +74,7 @@ export class MobilePresenter {
   private seenPreferences: MobilePreferences = { ...DEFAULT_PREFERENCES }
   private lastWritten = ''
   private writesEnabled = true
+  private swipe: { id: number; x: number; y: number } | null = null
 
   /**
    * Hydrate preferences, sample the viewport, and start listening.
@@ -102,6 +109,10 @@ export class MobilePresenter {
     // Bubble, so a session row's own click selects the session before the drawer closes.
     document.addEventListener('click', this.onClick)
     document.addEventListener('keydown', this.onKeyDown)
+    document.addEventListener('pointerdown', this.onPointerDown)
+    document.addEventListener('pointermove', this.onPointerMove)
+    document.addEventListener('pointerup', this.onPointerUp)
+    document.addEventListener('pointercancel', this.onPointerCancel)
     const visual = window.visualViewport ?? null
     if (visual !== null) {
       visual.addEventListener('resize', this.onViewport)
@@ -119,6 +130,11 @@ export class MobilePresenter {
     window.removeEventListener('orientationchange', this.onViewport)
     document.removeEventListener('click', this.onClick)
     document.removeEventListener('keydown', this.onKeyDown)
+    document.removeEventListener('pointerdown', this.onPointerDown)
+    document.removeEventListener('pointermove', this.onPointerMove)
+    document.removeEventListener('pointerup', this.onPointerUp)
+    document.removeEventListener('pointercancel', this.onPointerCancel)
+    this.swipe = null
     this.visual?.removeEventListener('resize', this.onViewport)
     this.visual?.removeEventListener('scroll', this.onViewport)
     this.visual = null
@@ -141,6 +157,41 @@ export class MobilePresenter {
     const control = node.closest('button, a')
     if (!opensSession && control === null) return
     this.store.actions.setDrawerOpen(false)
+  }
+
+  private readonly onPointerDown = (event: PointerEvent): void => {
+    if (!event.isPrimary || event.pointerType === 'mouse') return
+    const root = document.documentElement
+    if (root.dataset.dshMobileLayout !== 'smartphone' || root.dataset.dshMobileDrawer === 'open') return
+    if (event.clientX > DRAWER_EDGE_PX) return
+    this.swipe = { id: event.pointerId, x: event.clientX, y: event.clientY }
+  }
+
+  private readonly onPointerMove = (event: PointerEvent): void => {
+    const swipe = this.swipe
+    if (swipe === null || event.pointerId !== swipe.id) return
+    const dx = event.clientX - swipe.x
+    const dy = event.clientY - swipe.y
+    // A vertical move is a scroll. Drop the gesture before it can open the drawer.
+    if (Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx)) {
+      this.swipe = null
+      return
+    }
+    if (dx > 8) event.preventDefault()
+  }
+
+  private readonly onPointerUp = (event: PointerEvent): void => {
+    const swipe = this.swipe
+    if (swipe === null || event.pointerId !== swipe.id) return
+    this.swipe = null
+    const dx = event.clientX - swipe.x
+    const dy = event.clientY - swipe.y
+    if (dx < DRAWER_OPEN_DX || Math.abs(dy) > dx) return
+    this.store.actions.setDrawerOpen(true)
+  }
+
+  private readonly onPointerCancel = (event: PointerEvent): void => {
+    if (this.swipe?.id === event.pointerId) this.swipe = null
   }
 
   private readonly onKeyDown = (event: KeyboardEvent): void => {
