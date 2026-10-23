@@ -104,6 +104,9 @@ function useTitleMarquee(title: RefObject<HTMLSpanElement | null>): { enter: () 
   useEffect(() => () => { cancelAnimationFrame(frame.current) }, [])
   return useMemo(() => ({
     enter: (): void => {
+      // A touch tap fires pointerenter before click. Starting the marquee
+      // rewrites the title, and iOS then withholds the click until a second tap.
+      if (document.documentElement.dataset.dshMobileLayout === 'smartphone') return
       /* v8 ignore next -- defensive: the title span renders unconditionally. */
       if (title.current === null) return
       const element = title.current

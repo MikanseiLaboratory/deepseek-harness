@@ -124,6 +124,7 @@
     { "path": "./packages/client/ui-directory-picker-native" },
     { "path": "./packages/client/ui-goal" },
     { "path": "./packages/client/ui-message-feedback" },
+    { "path": "./packages/client/ui-mobile" },
     { "path": "./packages/client/ui-model-selection" },
     { "path": "./packages/client/ui-deepseek-model-label-1017" },
     { "path": "./packages/client/ui-agent-preset" },

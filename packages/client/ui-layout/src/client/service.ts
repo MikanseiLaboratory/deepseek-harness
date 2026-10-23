@@ -51,6 +51,11 @@ export interface ILayout {
   openRightbar(track: boolean, fullscreen: boolean): void
   /** Report the right panel as hidden: no track, no handle. */
   closeRightbar(): void
+  /**
+   * Report whether the smartphone drawer owns the sidebar column.
+   * @param active - true while that presentation is painted.
+   */
+  setMobilePresentation(active: boolean): void
 }
 
 /** Cross-plugin panel-action face (ctx.layout). */
@@ -102,5 +107,10 @@ export class LayoutController implements ILayout {
   /** Report the right panel as hidden: no track, no handle. */
   closeRightbar(): void {
     this.panels.closeRightbar()
+  }
+
+  /** Report whether the smartphone drawer owns the sidebar column. */
+  setMobilePresentation(active: boolean): void {
+    this.panels.setMobilePresentation(active)
   }
 }

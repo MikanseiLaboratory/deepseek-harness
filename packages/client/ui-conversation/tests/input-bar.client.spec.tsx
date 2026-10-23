@@ -791,6 +791,21 @@ describe('Enter semantics', () => {
     expect(sink).not.toHaveBeenCalled()
   })
 
+  it('treats Enter as a newline while the smartphone composer asks for one', () => {
+    document.documentElement.dataset.dshComposerEnter = 'newline'
+    try {
+      const plain = bench({ draft: 'hello' })
+      fireEvent.keyDown(plain.textarea, { key: 'Enter' })
+      expect(plain.sink).not.toHaveBeenCalled()
+      const modified = bench({ draft: 'hello' })
+      fireEvent.keyDown(modified.textarea, { key: 'Enter', metaKey: true })
+      fireEvent.keyDown(modified.textarea, { key: 'Enter', ctrlKey: true })
+      expect(modified.sink).not.toHaveBeenCalled()
+    } finally {
+      delete document.documentElement.dataset.dshComposerEnter
+    }
+  })
+
   it('Shift+Enter newline wins even inside IME composition (unconditional precedence)', () => {
     const { textarea, sink } = bench({ draft: 'hello' })
     fireEvent.compositionStart(textarea)
@@ -1413,6 +1428,17 @@ describe('running and lock semantics', () => {
     textarea.focus = (options?: FocusOptions) => { focused.push(options?.preventScroll) }
     act(() => { view.rerender(<InputBar {...props} sessionId={'s2' as SessionId} />) })
     expect(focused).toEqual([true])
+  })
+
+  it('a session switch on the smartphone layout leaves the composer unfocused', () => {
+    document.documentElement.dataset.dshMobileLayout = 'smartphone'
+    onTestFinished(() => { delete document.documentElement.dataset.dshMobileLayout })
+    const { view, textarea, props } = bench({ draft: 'line one' })
+    const focused: (boolean | undefined)[] = []
+    textarea.focus = (options?: FocusOptions) => { focused.push(options?.preventScroll) }
+    act(() => { view.rerender(<InputBar {...props} sessionId={'s2' as SessionId} />) })
+    expect(focused).toEqual([])
+    expect(document.activeElement).not.toBe(textarea)
   })
 
   it('a persisted draft adopted after mount does not steal focus from another control', () => {

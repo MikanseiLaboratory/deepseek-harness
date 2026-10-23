@@ -176,9 +176,11 @@ export const InputBar = memo(function InputBar({
   // reveal that comes with it. Lexical's focus() suppresses the browser's
   // scroll walk (preventScroll inside), so the reveal in our own scrollport
   // is ours to perform — switching to a longer draft otherwise leaves the
-  // caret (restored at the draft's end) off screen.
+  // caret (restored at the draft's end) off screen. The smartphone drawer
+  // must not pull up the software keyboard when the user only changes session.
   useEffect(() => {
     if (locked || editor === null) return
+    if (document.documentElement.dataset.dshMobileLayout === 'smartphone') return
     focusDraftEditor(editor, revealSelection)
   }, [locked, sessionId, editor])
 
@@ -436,8 +438,8 @@ export const InputBar = memo(function InputBar({
           hint={hint}
           showPlaceholder={draft === '' && attachments.length === 0 && !claimActive}
         />
-        <div ref={rowRef} className={css.row}>
-          <div className={css.tools} hidden={activity}>
+        <div ref={rowRef} className={css.row} data-composer-toolbar="">
+          <div className={css.tools} data-composer-tools="" hidden={activity}>
             <Tooltip label={t('input.commands')} side="top" delayMs={500}>
               <button
                 type="button"
@@ -468,7 +470,7 @@ export const InputBar = memo(function InputBar({
               ? null
               : renderSlot('conversation.input.left', {})}
           </div>
-          <div className={clsx(css.trailing, activity && css.trailingActive)}>
+          <div className={clsx(css.trailing, activity && css.trailingActive)} data-composer-trailing="">
             <div className={css.standardControls} hidden={activity}>
               {input === undefined || sessionId === undefined
                 ? null

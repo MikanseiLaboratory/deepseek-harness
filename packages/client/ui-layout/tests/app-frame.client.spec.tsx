@@ -202,6 +202,23 @@ describe('AppFrame', () => {
     expect(document.title).toBe('Product')
   })
 
+  it('keeps the wide sidebar mounted on a zero track while the smartphone drawer is active', () => {
+    const { frame, instance, sidebarOwner } = mountFrame()
+    act(() => {
+      instance.actions.openRightbar(true, false)
+      instance.actions.setMobilePresentation(true)
+    })
+    expect(tracks(frame)).toEqual([0, 0])
+    expect(frame.hasAttribute('data-app-frame')).toBe(true)
+    expect(frame.querySelector('[data-sidebar-col]')).not.toBeNull()
+    expect(frame.hasAttribute('data-sidebar-collapsed')).toBe(false)
+    expect(sidebarOwner()).toEqual({ collapsed: false, width: 280 })
+    expect(frame.querySelector('[data-side]')).toBeNull()
+    act(() => { instance.actions.setMobilePresentation(false) })
+    expect(tracks(frame)[0]).toBe(280)
+    expect(frame.querySelector('[data-side="sidebar"]')).not.toBeNull()
+  })
+
   it('renders owner props for the default sidebar and prospective right panel', () => {
     const { frame, rightOwner, sidebarOwner, slotCalls } = mountFrame()
     expect(tracks(frame)).toEqual([280, 0])

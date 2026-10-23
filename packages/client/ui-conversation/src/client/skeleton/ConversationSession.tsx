@@ -69,7 +69,7 @@ export function ConversationSessionHeader({
       <div className={css.titleRow}>
         {!hideChrome && (
           <>
-            <div className={css.titleCluster}>
+            <div className={css.titleCluster} data-conversation-title="">
               <nav className={css.crumbs} aria-label={t('session.hierarchy')}>
                 {ancestry.map((summary, index) => {
                   const last = index === ancestry.length - 1
