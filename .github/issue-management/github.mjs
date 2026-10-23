@@ -17,6 +17,17 @@ function projectToken() {
 }
 
 /**
+ * Repository this workflow is acting on. Actions sets GITHUB_REPOSITORY to the
+ * fork that received the event; a local run keeps the configured coordinates.
+ * @returns {string} owner/name.
+ */
+export function repositoryName() {
+  const fromEnv = process.env.GITHUB_REPOSITORY
+  if (typeof fromEnv === 'string' && /^[^/\s]+\/[^/\s]+$/.test(fromEnv)) return fromEnv
+  return `${config.organization}/${config.repository}`
+}
+
+/**
  * Send one GitHub REST request; HTTP failures retain the method, path, status, and body.
  * @param {string} path API path including any query string.
  * @param {object} options Fetch options; allow404 returns null for a 404.
@@ -69,7 +80,7 @@ export async function graphql(query, variables) {
  * @returns {Promise<object|null>} Issue snapshot, or null when the number identifies a pull request.
  */
 export async function issueSnapshot(number, status = undefined) {
-  const issue = await api(`/repos/${config.organization}/${config.repository}/issues/${number}`)
+  const issue = await api(`/repos/${repositoryName()}/issues/${number}`)
   if (issue.pull_request) return null
   const context = await projectContext(number)
   return {

@@ -1,0 +1,83 @@
+name: Sync shiguredo
+
+on:
+  schedule:
+    # 03:00 Asia/Tokyo. GitHub cron is UTC, and Japan does not observe daylight saving time.
+    - cron: "0 18 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-shiguredo
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Sync shiguredo
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out this repository
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+          token: ${{ github.token }}
+
+      - name: Fetch upstream shiguredo
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          set -euo pipefail
+          git remote add upstream https://github.com/shiguredo/deepseek-harness.git
+          git fetch upstream shiguredo
+
+      - name: Fast-forward origin/shiguredo
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          set -euo pipefail
+          git push origin upstream/shiguredo:refs/heads/shiguredo
+
+      - name: Open a pull request when mikanseidev is behind
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GIT_TERMINAL_PROMPT: "0"
+          PR_TITLE: "Sync: 時雨堂 shiguredo ブランチの更新を取り込み"
+          PR_BODY: |
+            時雨堂 upstream の `shiguredo` を、このリポジトリの `shiguredo` へ fast-forward しました。
+
+            `origin/shiguredo` には `origin/mikanseidev` に含まれないコミットがあります。この pull request はその差分を `mikanseidev` に取り込みます。
+        run: |
+          set -euo pipefail
+          shopt -s inherit_errexit
+
+          git fetch origin shiguredo mikanseidev
+          ahead="$(git rev-list --count origin/mikanseidev..origin/shiguredo)"
+          echo "origin/shiguredo has ${ahead} commit(s) that origin/mikanseidev does not."
+          if [ "$ahead" -eq 0 ]; then
+            echo "origin/mikanseidev already contains origin/shiguredo."
+            exit 0
+          fi
+
+          existing="$(gh pr list \
+            --repo "$GITHUB_REPOSITORY" \
+            --base mikanseidev \
+            --head shiguredo \
+            --state open \
+            --json number \
+            --jq 'length')"
+          if [ "$existing" != "0" ]; then
+            echo "An open pull request from shiguredo into mikanseidev already exists."
+            exit 0
+          fi
+
+          gh pr create \
+            --repo "$GITHUB_REPOSITORY" \
+            --base mikanseidev \
+            --head shiguredo \
+            --title "$PR_TITLE" \
+            --body "$PR_BODY"
