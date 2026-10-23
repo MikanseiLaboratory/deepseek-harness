@@ -363,6 +363,29 @@ describe('workspace browser rows', () => {
     }
   })
 
+  it('does not marquee a title while the smartphone layout is active', () => {
+    document.documentElement.dataset.dshMobileLayout = 'smartphone'
+    try {
+      const node: SessionNode = {
+        id: sid('mobile-title'), title: 'A Session Title Long Enough To Be Clipped (1)', blank: false,
+        running: false, runningSubagentCount: 0, completed: false, updatedAt: 0,
+        pinned: false, archived: false,
+      }
+      render(
+        <SessionNodeItem node={node} currentId={undefined} now={0} onOpen={vi.fn()} t={t} />,
+      )
+      const title = screen.getByText(node.title)
+      Object.defineProperty(title, 'scrollWidth', { value: 320, configurable: true })
+      Object.defineProperty(title, 'clientWidth', { value: 180, configurable: true })
+      fireEvent.pointerEnter(screen.getByRole('treeitem'))
+      expect(title.scrollLeft).toBe(0)
+      expect(title.hasAttribute('data-scrolled')).toBe(false)
+      expect(title.hasAttribute('data-clipped')).toBe(false)
+    } finally {
+      delete document.documentElement.dataset.dshMobileLayout
+    }
+  })
+
   it('returns a marqueed title to its start in one step and cancels the crawl', () => {
     vi.useFakeTimers()
     vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false })))

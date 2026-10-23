@@ -176,9 +176,11 @@ export const InputBar = memo(function InputBar({
   // reveal that comes with it. Lexical's focus() suppresses the browser's
   // scroll walk (preventScroll inside), so the reveal in our own scrollport
   // is ours to perform — switching to a longer draft otherwise leaves the
-  // caret (restored at the draft's end) off screen.
+  // caret (restored at the draft's end) off screen. The smartphone drawer
+  // must not pull up the software keyboard when the user only changes session.
   useEffect(() => {
     if (locked || editor === null) return
+    if (document.documentElement.dataset.dshMobileLayout === 'smartphone') return
     focusDraftEditor(editor, revealSelection)
   }, [locked, sessionId, editor])
 

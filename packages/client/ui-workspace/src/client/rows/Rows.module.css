@@ -333,6 +333,31 @@
   }
 }
 
+/* Touch treats a :hover that shows or hides row contents as a preview tap, so
+   the session click waits for a second tap and the title looks focused.
+   Keep the resting row stable and leave the action buttons in place. */
+:global(html[data-dsh-mobile-layout='smartphone']) .sessionRow .rowActions,
+:global(html[data-dsh-mobile-layout='smartphone']) .searchResultRow .rowActions,
+:global(html[data-dsh-mobile-layout='smartphone']) .projectRow .rowActions {
+  display: inline-flex;
+}
+
+:global(html[data-dsh-mobile-layout='smartphone']) .sessionRow:hover .time {
+  display: inline;
+}
+
+:global(html[data-dsh-mobile-layout='smartphone']) .sessionRow:hover .pinIndicator {
+  display: inline-flex;
+}
+
+:global(html[data-dsh-mobile-layout='smartphone']) .projectRow:hover .chevron {
+  display: none;
+}
+
+:global(html[data-dsh-mobile-layout='smartphone']) .projectRow:hover .folder {
+  display: inline-flex;
+}
+
 /* An open row menu pins the hover affordances (figma: the row keeps its
    hover fill while its dropdown is up). */
 .projectRow.menuOpen,

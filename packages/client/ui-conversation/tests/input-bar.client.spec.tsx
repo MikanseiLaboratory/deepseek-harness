@@ -1430,6 +1430,17 @@ describe('running and lock semantics', () => {
     expect(focused).toEqual([true])
   })
 
+  it('a session switch on the smartphone layout leaves the composer unfocused', () => {
+    document.documentElement.dataset.dshMobileLayout = 'smartphone'
+    onTestFinished(() => { delete document.documentElement.dataset.dshMobileLayout })
+    const { view, textarea, props } = bench({ draft: 'line one' })
+    const focused: (boolean | undefined)[] = []
+    textarea.focus = (options?: FocusOptions) => { focused.push(options?.preventScroll) }
+    act(() => { view.rerender(<InputBar {...props} sessionId={'s2' as SessionId} />) })
+    expect(focused).toEqual([])
+    expect(document.activeElement).not.toBe(textarea)
+  })
+
   it('a persisted draft adopted after mount does not steal focus from another control', () => {
     const { shell } = bench()
     const other = document.createElement('input')

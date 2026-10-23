@@ -99,7 +99,7 @@ export class MobilePresenter {
     this.unsubscribe = this.store.subscribe(() => { this.onStore() })
     window.addEventListener('resize', this.onViewport)
     window.addEventListener('orientationchange', this.onViewport)
-    // Bubble, so a session control inside the drawer runs before the drawer closes.
+    // Bubble, so a session row's own click selects the session before the drawer closes.
     document.addEventListener('click', this.onClick)
     document.addEventListener('keydown', this.onKeyDown)
     const visual = window.visualViewport ?? null
@@ -133,8 +133,13 @@ export class MobilePresenter {
     if (document.documentElement.dataset.dshMobileDrawer !== 'open') return
     const node = event.target
     if (!(node instanceof Element)) return
+    if (node.closest('[data-sidebar-col]') === null) return
+    // Session and search rows are treeitems with aria-selected. Group headers
+    // are treeitems too, but they only expand, so they leave the drawer open.
+    // Row menus stop the click before it reaches the document.
+    const opensSession = node.closest('[role="treeitem"][aria-selected]') !== null
     const control = node.closest('button, a')
-    if (control === null || control.closest('[data-sidebar-col]') === null) return
+    if (!opensSession && control === null) return
     this.store.actions.setDrawerOpen(false)
   }
 
