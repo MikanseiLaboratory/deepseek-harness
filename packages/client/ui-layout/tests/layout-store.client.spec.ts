@@ -21,6 +21,7 @@ describe('createLayoutStore', () => {
         rightbarTrack: false,
         rightbarFullscreen: false,
         rightbarInstant: false,
+        mobilePresentation: false,
       },
     })
   })
@@ -280,6 +281,18 @@ describe('right panel instant geometry', () => {
     const closed = store.getSnapshot()
     actions.setViewportWidth(closed.layoutInfo.viewportWidth)
     expect(store.getSnapshot()).toBe(closed)
+  })
+
+  it('reports smartphone presentation once per change', () => {
+    const { store, actions } = createLayoutStore().create()
+    const initial = store.getSnapshot()
+    actions.setMobilePresentation(false)
+    expect(store.getSnapshot()).toBe(initial)
+    actions.setMobilePresentation(true)
+    expect(store.getSnapshot().layoutInfo.mobilePresentation).toBe(true)
+    const shown = store.getSnapshot()
+    actions.setMobilePresentation(true)
+    expect(store.getSnapshot()).toBe(shown)
   })
 
   it.each([true, false])('clears the exit marker on a fresh opening with fullscreen=%s', (fullscreen) => {

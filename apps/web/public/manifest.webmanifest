@@ -3,7 +3,7 @@
   "short_name": "DSH",
   "start_url": "./",
   "scope": "./",
-  "display": "fullscreen",
+  "display": "standalone",
   "icons": [
     {
       "src": "favicon.svg",

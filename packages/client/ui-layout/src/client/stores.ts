@@ -49,6 +49,12 @@ type LayoutInfo = {
   rightbarFullscreen: boolean
   /** Suppress transitions for a fullscreen exit until another geometry action. */
   rightbarInstant: boolean
+  /**
+   * Whether the smartphone drawer owns the sidebar column. The mobile
+   * presenter reports it; AppFrame keeps the wide sidebar mounted on a
+   * zero-width track while that presentation is active.
+   */
+  mobilePresentation: boolean
 }
 
 /**
@@ -64,6 +70,7 @@ type LayoutActions = {
   setRightbar: (draft: LayoutState, px: number) => void
   openRightbar: (draft: LayoutState, track: boolean, fullscreen: boolean) => void
   closeRightbar: (draft: LayoutState) => void
+  setMobilePresentation: (draft: LayoutState, active: boolean) => void
 }
 
 /**
@@ -88,6 +95,7 @@ export function createLayoutStore(): EngineStoreHandle<LayoutState, LayoutAction
         rightbarTrack: false,
         rightbarFullscreen: false,
         rightbarInstant: false,
+        mobilePresentation: false,
       },
     }),
     actions: {
@@ -139,6 +147,10 @@ export function createLayoutStore(): EngineStoreHandle<LayoutState, LayoutAction
         d.layoutInfo.rightbarShown = false
         d.layoutInfo.rightbarTrack = false
         d.layoutInfo.rightbarFullscreen = false
+      },
+      setMobilePresentation: (d, active: boolean) => {
+        if (d.layoutInfo.mobilePresentation === active) return
+        d.layoutInfo.mobilePresentation = active
       },
     },
   })

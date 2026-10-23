@@ -452,6 +452,10 @@
     - id: ui-message-feedback
       name: '@deepseek-ai/dsh-client-ui-message-feedback'
 
+    # Smartphone layout: session drawer, compact composer, and browser-local settings.
+    - id: ui-mobile
+      name: '@deepseek-ai/dsh-client-ui-mobile'
+
     # Model selection: the /model popupSelect + composer seat over session.models.
     - id: ui-model-selection
       name: '@deepseek-ai/dsh-client-ui-model-selection'

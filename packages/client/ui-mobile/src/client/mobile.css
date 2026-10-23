@@ -1,0 +1,153 @@
+/* Smartphone presentation. Every rule is gated by an attribute the presenter
+   sets only while that presentation is active, so a desktop frame is unchanged. */
+
+html[data-dsh-mobile-layout='smartphone'],
+html[data-dsh-mobile-layout='smartphone'] body {
+  height: var(--dsh-mobile-vv-height, 100%);
+  overflow: hidden;
+}
+
+html[data-dsh-mobile-layout='smartphone'] #root {
+  box-sizing: border-box;
+  height: var(--dsh-mobile-vv-height, 100%);
+  padding-top: var(--dsh-mobile-pad-top, env(safe-area-inset-top, 0px));
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: var(--dsh-mobile-pad-bottom, env(safe-area-inset-bottom, 0px));
+  padding-left: env(safe-area-inset-left, 0px);
+  overflow: hidden;
+}
+
+html[data-dsh-mobile-keyboard='1'] #root {
+  transform: translateY(var(--dsh-mobile-vv-offset, 0px));
+}
+
+html[data-dsh-mobile-layout='smartphone'] [data-sidebar-col] {
+  position: relative;
+  z-index: 40;
+  justify-self: start;
+  box-sizing: border-box;
+  width: min(80vw, 22.5rem);
+  max-width: none;
+  padding-top: var(--dsh-mobile-pad-top, 0px);
+  overflow: hidden;
+  background: var(--dsw-specific-sidebar-fill);
+  transform: translateX(-105%);
+  transition: transform 180ms ease;
+}
+
+html[data-dsh-mobile-layout='smartphone'][data-dsh-mobile-drawer='open'] [data-sidebar-col] {
+  transform: none;
+}
+
+html[data-dsh-mobile-layout='smartphone'] [data-sidebar-col] > * {
+  width: 100% !important;
+  max-width: none !important;
+  height: 100%;
+}
+
+html[data-dsh-mobile-layout='smartphone'] [data-sidebar-toggle] {
+  display: none;
+}
+
+html[data-dsh-mobile-layout='smartphone'] header[data-window-drag] {
+  min-height: 0;
+  padding: 6px 8px 6px 4px;
+}
+
+html[data-dsh-mobile-layout='smartphone'] [data-conversation-title] {
+  min-width: 0;
+  overflow: hidden;
+}
+
+html[data-dsh-mobile-layout='smartphone'] [data-conversation-title] span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html[data-dsh-mobile-layout='smartphone'] [data-conversation-scroll] {
+  overflow-x: hidden;
+}
+
+html[data-dsh-mobile-layout='smartphone'] [data-disclosure-row],
+html[data-dsh-mobile-layout='smartphone'] [data-turn-process] {
+  font-size: 12px;
+}
+
+html[data-dsh-mobile-layout='smartphone'] [data-composer-seat] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 10px 8px;
+  background: linear-gradient(to top, var(--dsw-alias-bg-base), transparent);
+}
+
+html[data-dsh-mobile-layout='smartphone'] [data-composer-card] {
+  display: grid;
+  width: 100%;
+  box-sizing: border-box;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 6px;
+  padding: 6px;
+  border-radius: var(--dsw-radius-panel);
+}
+
+html[data-dsh-mobile-layout='smartphone'] [data-composer-card] > * {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+
+html[data-dsh-mobile-layout='smartphone'] [data-composer-toolbar] {
+  display: contents;
+}
+
+/* The tools row is one flex box (attach + permission chips). Contents
+   promotion lets the attach button sit beside the draft while the chips
+   take the row above, instead of widening the first column over the draft. */
+html[data-dsh-mobile-layout='smartphone'] [data-composer-tools] {
+  display: contents;
+}
+
+html[data-dsh-mobile-layout='smartphone'] [data-composer-tools] > button {
+  grid-column: 1;
+  grid-row: 3;
+  align-self: end;
+}
+
+html[data-dsh-mobile-layout='smartphone'] [data-composer-tools] > div {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  min-width: 0;
+}
+
+html[data-dsh-mobile-layout='smartphone'] [data-composer-card] > :has([data-composer-input]) {
+  grid-column: 2;
+  grid-row: 3;
+  width: 100%;
+  min-width: 0;
+}
+
+html[data-dsh-mobile-layout='smartphone'] [data-composer-trailing] {
+  grid-column: 3;
+  grid-row: 3;
+  align-self: end;
+  justify-content: flex-end;
+}
+
+html[data-dsh-mobile-layout='smartphone'] [data-composer-dock] {
+  justify-content: center;
+  gap: 8px;
+  font-size: 11px;
+  line-height: 14px;
+}
+
+html[data-dsh-mobile-hide-desktop='1'] [data-settings-section='plugins'],
+html[data-dsh-mobile-hide-desktop='1'] [data-open-target] {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-dsh-mobile-layout='smartphone'] [data-sidebar-col] {
+    transition: none;
+  }
+}

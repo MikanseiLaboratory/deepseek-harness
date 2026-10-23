@@ -1,0 +1,9 @@
+.backdrop {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--dsw-alias-bg-mask-1);
+  cursor: pointer;
+}

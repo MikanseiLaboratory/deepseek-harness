@@ -436,8 +436,8 @@ export const InputBar = memo(function InputBar({
           hint={hint}
           showPlaceholder={draft === '' && attachments.length === 0 && !claimActive}
         />
-        <div ref={rowRef} className={css.row}>
-          <div className={css.tools} hidden={activity}>
+        <div ref={rowRef} className={css.row} data-composer-toolbar="">
+          <div className={css.tools} data-composer-tools="" hidden={activity}>
             <Tooltip label={t('input.commands')} side="top" delayMs={500}>
               <button
                 type="button"
@@ -468,7 +468,7 @@ export const InputBar = memo(function InputBar({
               ? null
               : renderSlot('conversation.input.left', {})}
           </div>
-          <div className={clsx(css.trailing, activity && css.trailingActive)}>
+          <div className={clsx(css.trailing, activity && css.trailingActive)} data-composer-trailing="">
             <div className={css.standardControls} hidden={activity}>
               {input === undefined || sessionId === undefined
                 ? null

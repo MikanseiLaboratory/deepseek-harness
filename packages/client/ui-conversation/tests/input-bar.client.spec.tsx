@@ -791,6 +791,21 @@ describe('Enter semantics', () => {
     expect(sink).not.toHaveBeenCalled()
   })
 
+  it('treats Enter as a newline while the smartphone composer asks for one', () => {
+    document.documentElement.dataset.dshComposerEnter = 'newline'
+    try {
+      const plain = bench({ draft: 'hello' })
+      fireEvent.keyDown(plain.textarea, { key: 'Enter' })
+      expect(plain.sink).not.toHaveBeenCalled()
+      const modified = bench({ draft: 'hello' })
+      fireEvent.keyDown(modified.textarea, { key: 'Enter', metaKey: true })
+      fireEvent.keyDown(modified.textarea, { key: 'Enter', ctrlKey: true })
+      expect(modified.sink).not.toHaveBeenCalled()
+    } finally {
+      delete document.documentElement.dataset.dshComposerEnter
+    }
+  })
+
   it('Shift+Enter newline wins even inside IME composition (unconditional precedence)', () => {
     const { textarea, sink } = bench({ draft: 'hello' })
     fireEvent.compositionStart(textarea)

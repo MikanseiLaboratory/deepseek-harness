@@ -17,6 +17,7 @@ import { ja as feedback } from './feedback.ts'
 import { ja as gitBranch } from './git-branch.ts'
 import { ja as goal } from './goal.ts'
 import { ja as job } from './job.ts'
+import { ja as mobileUi } from './mobile-ui.ts'
 import { ja as model } from './model.ts'
 import { ja as openInApp } from './open-in-app.ts'
 import { ja as permissionAccess } from './permission-access.ts'
@@ -80,6 +81,7 @@ export const DICTIONARIES: readonly { ns: string; dict: Record<string, string> }
   { ns: 'gitBranch', dict: gitBranch },
   { ns: 'goal', dict: goal },
   { ns: 'job', dict: job },
+  { ns: 'mobile-ui', dict: mobileUi },
   { ns: 'model', dict: model },
   { ns: 'open-in-app', dict: openInApp },
   { ns: 'permission.access', dict: permissionAccess },

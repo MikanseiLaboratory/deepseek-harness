@@ -13,6 +13,7 @@ function fakePanels(): PanelActions {
     setRightbar: vi.fn(),
     openRightbar: vi.fn(),
     closeRightbar: vi.fn(),
+    setMobilePresentation: vi.fn(),
   }
 }
 
@@ -39,9 +40,13 @@ describe('LayoutController', () => {
     const service = new LayoutController(panels, () => true, createSnapshotStore({ activePanelId: null }))
 
     service.toggleSidebar()
+    service.setMobilePresentation(true)
+    service.setMobilePresentation(false)
 
     expect(panels.toggleSidebar).toHaveBeenCalledTimes(1)
     expect(panels.setSidebar).not.toHaveBeenCalled()
+    expect(panels.setMobilePresentation).toHaveBeenNthCalledWith(1, true)
+    expect(panels.setMobilePresentation).toHaveBeenNthCalledWith(2, false)
   })
 
   it('forwards panel selection and returning to the Conversation without changing geometry', () => {
